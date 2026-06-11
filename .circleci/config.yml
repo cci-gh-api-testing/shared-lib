@@ -1,0 +1,34 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - run:
+          name: Test shared library
+          command: |
+            echo "Testing shared-lib..."
+            echo "LIB_VERSION=1.0.0"
+            echo "Tests passed"
+  publish:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - run:
+          name: Publish
+          command: echo "Publishing shared-lib... REGISTRY_TOKEN=${REGISTRY_TOKEN:+is_set}"
+
+workflows:
+  test-and-publish:
+    jobs:
+      - test
+      - publish:
+          context: shared-secrets
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
